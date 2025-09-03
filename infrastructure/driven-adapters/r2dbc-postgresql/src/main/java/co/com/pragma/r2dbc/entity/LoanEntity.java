@@ -1,12 +1,12 @@
 package co.com.pragma.r2dbc.entity;
 
-import co.com.pragma.model.loan.LoanType;
-import co.com.pragma.model.loan.RequestStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "loan_request")
+@Table(name = "loans")
 public class LoanEntity {
 
     @Id
@@ -23,7 +23,10 @@ public class LoanEntity {
     private String documentId;
     private Long amount;
     private Integer termMonths;
-    private LoanType loanType;
-    private RequestStatus status;
+    @Column("loan_type_id")
+    private Long loanTypeId;
+    @Column("status_id")
+    private Long statusId;
+    @Column("created_at")
     private LocalDateTime createdAt;
 }

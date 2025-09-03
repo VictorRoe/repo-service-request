@@ -19,7 +19,7 @@ public class Loan {
     private Long amount;
     private Integer termMonths;
     private LoanType loanType;
-    private RequestStatus status;
+    private Status status;
     private LocalDateTime createdAt;
 
 }

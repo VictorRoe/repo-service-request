@@ -4,6 +4,7 @@ import co.com.pragma.model.loan.Loan;
 import co.com.pragma.model.loan.gateways.LoanRepository;
 import co.com.pragma.r2dbc.entity.LoanEntity;
 import co.com.pragma.r2dbc.helper.ReactiveAdapterOperations;
+import co.com.pragma.r2dbc.mapper.LoanEntityMapper;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -17,10 +18,12 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
         MyReactiveRepository
 > implements LoanRepository {
 
+    private final LoanEntityMapper entityMapper;
     private final TransactionalOperator transactionalOperator;
 
-    public MyReactiveRepositoryAdapter(MyReactiveRepository repository, ObjectMapper mapper, TransactionalOperator transactionalOperator) {
+    public MyReactiveRepositoryAdapter(MyReactiveRepository repository, ObjectMapper mapper, LoanEntityMapper entityMapper, TransactionalOperator transactionalOperator) {
         super(repository, mapper, d -> mapper.map(d, Loan.class));
+        this.entityMapper = entityMapper;
         this.transactionalOperator =  transactionalOperator;
 
 
@@ -28,6 +31,9 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Mono<Loan> saveLoanRequest(Loan loanRequest) {
-        return this.save(loanRequest).as(transactionalOperator::transactional);
+        LoanEntity entity = entityMapper.toEntity(loanRequest);
+        return repository.save(entity)
+                .map(entityMapper::toDomain)
+                .as(transactionalOperator::transactional);
     }
 }
