@@ -1,12 +1,10 @@
 package co.com.pragma.api.dto;
 
-import java.time.LocalDateTime;
-
 public record LoanResponseDTO(Long id,
-                              String documentId,
+                              String email,
                               Long amount,
                               Integer termMonths,
-                              LoanTypeDTO loanType,
-                              StatusDTO status,
-                              LocalDateTime createdAt) {
+                              Long loanTypeId,
+                              Long statusId,
+                              String createdAt) {
 }
