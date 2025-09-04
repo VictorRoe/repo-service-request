@@ -20,7 +20,7 @@ public class LoanEntity {
 
     @Id
     private Long id;
-    private String documentId;
+    private String email;
     private Long amount;
     private Integer termMonths;
     @Column("loan_type_id")
