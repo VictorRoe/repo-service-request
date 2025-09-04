@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Loan {
 
     private Long id;
-    private String documentId;
+    private String email;
     private Long amount;
     private Integer termMonths;
     private LoanType loanType;
