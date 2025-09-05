@@ -6,4 +6,5 @@ import reactor.core.publisher.Mono;
 public interface LoanRepository {
 
     Mono<Loan> saveLoanRequest(Loan loanRequest);
+    Mono<Boolean> existsByEmail(String email);
 }

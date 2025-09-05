@@ -41,4 +41,10 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
                 .doOnSuccess(saved -> log.debug("Entidad guardada: {}", saved))
                 .doOnError(error -> log.error("Error en la capa de persistencia", error));
     }
+
+
+    @Override
+    public Mono<Boolean> existsByEmail(String email) {
+        return repository.existsByEmail(email);
+    }
 }

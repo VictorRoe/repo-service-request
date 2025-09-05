@@ -29,7 +29,11 @@ private final LoanDTOMapper loanDTOMapper;
                 .flatMap(useCase::register)
                 .doOnNext(loan -> log.info("[register] Registro procesado correctamente"))
                 .then(ServerResponse.status(HttpStatus.CREATED)
-                        .bodyValue(Map.of("message", "Loan registered successfully")));
+                        .bodyValue(Map.of("message", "Loan registered successfully")))
+                .onErrorResume(IllegalArgumentException.class , e -> ServerResponse.status(HttpStatus.CONFLICT).bodyValue(Map.of(
+                        "error", "This email already has a request"
+                        ))
+                );
 
     }
 }
