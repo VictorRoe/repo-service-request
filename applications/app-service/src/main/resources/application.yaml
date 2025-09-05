@@ -31,3 +31,8 @@ adapters:
     schema: ${DB_SCHEMA}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+
+logging:
+  level:
+    root: INFO
+    co.com.pragma: DEBUG

@@ -1,8 +1,8 @@
 package co.com.pragma.api.dto;
 
-public record CreateLoanRequestDTO(String documentId,
+public record LoanRequestDTO(String email,
                                    Long amount,
                                    Integer termMonths,
-                                   String loanType
+                                   Long loanType
 ) {
 }

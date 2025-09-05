@@ -7,11 +7,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class LoanType {
+public class Status {
 
     Long id;
     String name;
-    Long minimumAmount;
-    Long maximumAmount;
-    Double interestRate;
+    String description;
+
+
 }
