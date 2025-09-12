@@ -5,5 +5,5 @@ import reactor.core.publisher.Mono;
 
 public interface LoanUseCaseImp {
 
-    Mono<Loan> register(Loan loanRequest);
+    Mono<Loan> register(Loan loanRequest, String authenticatedUserEmail);
 }

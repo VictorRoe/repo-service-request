@@ -6,6 +6,7 @@ import co.com.pragma.model.loan.gateways.LoanRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.logging.Logger;
 
@@ -16,9 +17,20 @@ public class LoanUseCase implements LoanUseCaseImp {
     private final LoanRepository repository;
 
     @Override
-    public Mono<Loan> register(Loan loanRequest) {
+<<<<<<< HEAD
+    public Mono<Loan> register(Loan loanRequest, String authenticatedUserEmail) {
 
-        log.info("[LoanUseCase] Ejecutando caso de uso register para email");
+        log.info("[LoanUseCase] Ejecutando caso de uso 'register' para el usuario: " + authenticatedUserEmail);
+
+        if (!authenticatedUserEmail.equals(loanRequest.getEmail())) {
+            log.warning("Intento de acceso denegado: El usuario '" + authenticatedUserEmail
+                    + "' intentó crear una solicitud para '" + loanRequest.getEmail() + "'.");
+            return Mono.error(new AccessDeniedException("Acceso denegado: solo puedes crear solicitudes para ti mismo."));
+        }
+=======
+    public Mono<Loan> register(Loan loanRequest) {
+>>>>>>> main
+
         if (loanRequest.getLoanType() == null || loanRequest.getLoanType().getId() == null) {
             return Mono.error(new IllegalArgumentException("Loan type is required"));
         }
@@ -30,6 +42,11 @@ public class LoanUseCase implements LoanUseCaseImp {
                 .description("Loan request is pending review")
                 .build()
         );
+<<<<<<< HEAD
+        return repository.saveLoanRequest(loanRequest)
+                .doOnSuccess(saved -> log.info("Préstamo guardado exitosamente para el usuario " + authenticatedUserEmail))
+                .doOnError(error -> log.severe("Error al guardar el préstamo: " + error.getMessage()));
+=======
 
         return repository.existsByEmail(loanRequest.getEmail())
                 .flatMap(exist -> {
@@ -39,5 +56,7 @@ public class LoanUseCase implements LoanUseCaseImp {
                     }
                     return repository.saveLoanRequest(loanRequest);
                 });
+>>>>>>> main
     }
+
 }
