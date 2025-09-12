@@ -26,7 +26,7 @@ cors:
 adapters:
   r2dbc:
     host: localhost
-    port: 5432
+    port: 5435
     database: ${DB_NAME}
     schema: ${DB_SCHEMA}
     username: ${DB_USER}
