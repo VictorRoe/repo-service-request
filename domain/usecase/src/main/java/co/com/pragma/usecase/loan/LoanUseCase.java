@@ -11,12 +11,13 @@ import java.time.LocalDateTime;
 import java.util.logging.Logger;
 
 @RequiredArgsConstructor
-public class LoanUseCase implements LoanUseCaseImp{
+public class LoanUseCase implements LoanUseCaseImp {
 
     private static final Logger log = Logger.getLogger(LoanUseCase.class.getName());
     private final LoanRepository repository;
 
     @Override
+<<<<<<< HEAD
     public Mono<Loan> register(Loan loanRequest, String authenticatedUserEmail) {
 
         log.info("[LoanUseCase] Ejecutando caso de uso 'register' para el usuario: " + authenticatedUserEmail);
@@ -26,6 +27,9 @@ public class LoanUseCase implements LoanUseCaseImp{
                     + "' intentó crear una solicitud para '" + loanRequest.getEmail() + "'.");
             return Mono.error(new AccessDeniedException("Acceso denegado: solo puedes crear solicitudes para ti mismo."));
         }
+=======
+    public Mono<Loan> register(Loan loanRequest) {
+>>>>>>> main
 
         if (loanRequest.getLoanType() == null || loanRequest.getLoanType().getId() == null) {
             return Mono.error(new IllegalArgumentException("Loan type is required"));
@@ -38,9 +42,21 @@ public class LoanUseCase implements LoanUseCaseImp{
                 .description("Loan request is pending review")
                 .build()
         );
+<<<<<<< HEAD
         return repository.saveLoanRequest(loanRequest)
                 .doOnSuccess(saved -> log.info("Préstamo guardado exitosamente para el usuario " + authenticatedUserEmail))
                 .doOnError(error -> log.severe("Error al guardar el préstamo: " + error.getMessage()));
+=======
+
+        return repository.existsByEmail(loanRequest.getEmail())
+                .flatMap(exist -> {
+                    if (Boolean.TRUE.equals(exist)) {
+                        return Mono.error(new IllegalArgumentException("There is already a request for this email address."));
+
+                    }
+                    return repository.saveLoanRequest(loanRequest);
+                });
+>>>>>>> main
     }
 
 }
