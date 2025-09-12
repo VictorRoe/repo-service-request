@@ -17,46 +17,40 @@ public class LoanUseCase implements LoanUseCaseImp {
     private final LoanRepository repository;
 
     @Override
-<<<<<<< HEAD
     public Mono<Loan> register(Loan loanRequest, String authenticatedUserEmail) {
 
+        // 1. Lógica de Seguridad (la que implementamos juntos)
         log.info("[LoanUseCase] Ejecutando caso de uso 'register' para el usuario: " + authenticatedUserEmail);
-
         if (!authenticatedUserEmail.equals(loanRequest.getEmail())) {
             log.warning("Intento de acceso denegado: El usuario '" + authenticatedUserEmail
                     + "' intentó crear una solicitud para '" + loanRequest.getEmail() + "'.");
             return Mono.error(new AccessDeniedException("Acceso denegado: solo puedes crear solicitudes para ti mismo."));
         }
-=======
-    public Mono<Loan> register(Loan loanRequest) {
->>>>>>> main
 
-        if (loanRequest.getLoanType() == null || loanRequest.getLoanType().getId() == null) {
-            return Mono.error(new IllegalArgumentException("Loan type is required"));
-        }
-
-        loanRequest.setCreatedAt(LocalDateTime.now());
-        loanRequest.setStatus(Status.builder()
-                .id(1L)
-                .name("PENDING")
-                .description("Loan request is pending review")
-                .build()
-        );
-<<<<<<< HEAD
-        return repository.saveLoanRequest(loanRequest)
-                .doOnSuccess(saved -> log.info("Préstamo guardado exitosamente para el usuario " + authenticatedUserEmail))
-                .doOnError(error -> log.severe("Error al guardar el préstamo: " + error.getMessage()));
-=======
-
+        // 2. Lógica de Negocio (la nueva validación de la rama 'main')
         return repository.existsByEmail(loanRequest.getEmail())
                 .flatMap(exist -> {
                     if (Boolean.TRUE.equals(exist)) {
-                        return Mono.error(new IllegalArgumentException("There is already a request for this email address."));
-
+                        return Mono.error(new IllegalArgumentException("Ya existe una solicitud para esta dirección de correo."));
                     }
-                    return repository.saveLoanRequest(loanRequest);
+
+                    // 3. Si ambas validaciones pasan, se ejecuta la lógica original
+                    if (loanRequest.getLoanType() == null || loanRequest.getLoanType().getId() == null) {
+                        return Mono.error(new IllegalArgumentException("El tipo de préstamo es requerido."));
+                    }
+
+                    loanRequest.setCreatedAt(LocalDateTime.now());
+                    loanRequest.setStatus(Status.builder()
+                            .id(1L)
+                            .name("PENDING")
+                            .description("La solicitud de préstamo está pendiente de revisión.")
+                            .build()
+                    );
+
+                    return repository.saveLoanRequest(loanRequest)
+                            .doOnSuccess(saved -> log.info("Préstamo guardado exitosamente para el usuario " + authenticatedUserEmail))
+                            .doOnError(error -> log.severe("Error al guardar el préstamo: " + error.getMessage()));
                 });
->>>>>>> main
     }
 
 }

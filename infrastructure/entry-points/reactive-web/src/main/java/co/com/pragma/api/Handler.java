@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
+
 import java.util.Map;
 
 @Slf4j
@@ -26,22 +27,7 @@ public class Handler {
 
     @PreAuthorize("hasAuthority('USER')")
     public Mono<ServerResponse> register(ServerRequest serverRequest) {
-<<<<<<< HEAD
         log.info("[register] Recibiendo solicitud de registro de préstamo");
-=======
-        log.info("[register] Recibiendo solicitud de registro");
-        return serverRequest.bodyToMono(LoanRequestDTO.class)
-                .doOnNext(dto -> log.debug("[register] Solicitud recibida: {}", dto))
-                .map(loanDTOMapper::toDomain)
-                .flatMap(useCase::register)
-                .doOnNext(loan -> log.info("[register] Registro procesado correctamente"))
-                .then(ServerResponse.status(HttpStatus.CREATED)
-                        .bodyValue(Map.of("message", "Loan registered successfully")))
-                .onErrorResume(IllegalArgumentException.class , e -> ServerResponse.status(HttpStatus.CONFLICT).bodyValue(Map.of(
-                        "error", "This email already has a request"
-                        ))
-                );
->>>>>>> main
 
         Mono<Loan> loanRequestMono = serverRequest.bodyToMono(LoanRequestDTO.class)
                 .doOnNext(dto -> log.debug("[register] DTO recibido: {}", dto))
@@ -61,7 +47,6 @@ public class Handler {
                 .doOnNext(loan -> log.info("[register] Préstamo registrado correctamente para el usuario"))
                 .then(ServerResponse.status(HttpStatus.CREATED)
                         .bodyValue(Map.of("message", "Loan registered successfully")))
-                // Añadimos un manejo de errores más explícito
                 .onErrorResume(AccessDeniedException.class, e ->
                         ServerResponse.status(HttpStatus.FORBIDDEN).bodyValue(Map.of("error", e.getMessage()))
                 )
