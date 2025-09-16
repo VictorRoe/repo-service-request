@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8087
 spring:
   application:
     name: "Request"
@@ -20,23 +20,50 @@ management:
     health:
       probes:
         enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
-
 adapters:
   r2dbc:
-    host: localhost
+    host: "localhost"
     port: 5435
-    database: ${DB_NAME}
-    schema: ${DB_SCHEMA}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    database: "${DB_NAME}"
+    schema: "${DB_SCHEMA}"
+    username: "${DB_USER}"
+    password: "${DB_PASSWORD}"
 
 logging:
   level:
-    root: INFO
-    co.com.pragma: DEBUG
-
+    root: "INFO"
+    co.com.pragma: "DEBUG"
 jwt:
-  secret: ${JWT_SECRET}
+  secret: "${JWT_SECRET}"
   expiration: 3600
+
+adapter:
+  restconsumer:
+    timeout: 5000
+    url: "http://localhost:8083"
+resilience4j:
+  circuitbreaker:
+    instances:
+      testGet:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: "2s"
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: "10s"
+      testPost:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: "2s"
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: "10s"
