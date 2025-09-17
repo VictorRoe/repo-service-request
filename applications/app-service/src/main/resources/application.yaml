@@ -27,12 +27,12 @@ cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
 adapters:
   r2dbc:
-    host: "localhost"
-    port: 5435
-    database: "${DB_NAME}"
-    schema: "${DB_SCHEMA}"
-    username: "${DB_USER}"
-    password: "${DB_PASSWORD}"
+    host: ${DB_HOST:localhost}
+    port: ${DB_PORT:5435}
+    database: ${DB_NAME:loan_db}
+    schema: ${DB_SCHEMA:public}
+    username: ${DB_USERNAME:user}
+    password: ${DB_PASSWORD:12345}
 
 logging:
   level:
