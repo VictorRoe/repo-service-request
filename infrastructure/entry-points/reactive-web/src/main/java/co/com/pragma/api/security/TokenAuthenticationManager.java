@@ -30,7 +30,7 @@ public class TokenAuthenticationManager implements ReactiveAuthenticationManager
 
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
 
-        return Mono.just(new UsernamePasswordAuthenticationToken(username, null, authorities));
+        return Mono.just(new UsernamePasswordAuthenticationToken(username, token, authorities));
     }
 }
 
