@@ -12,4 +12,6 @@ public interface MyReactiveRepository extends ReactiveCrudRepository<LoanEntity,
     @Query("SELECT EXISTS(SELECT 1 FROM loans l INNER JOIN status s ON l.status_id = s.id WHERE l.email = :email AND s.name IN ('PENDING', 'MANUAL_REVIEW'))")
     Mono<Boolean> hasActiveRequestByEmail(@Param("email") String email);
 
+    Mono<LoanEntity> findById(Long id);
+
 }

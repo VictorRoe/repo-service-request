@@ -25,7 +25,7 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
         LoanEntity,
         Long,
         MyReactiveRepository
-> implements LoanRepository {
+        > implements LoanRepository {
 
     private final LoanEntityMapper entityMapper;
     private final TransactionalOperator transactionalOperator;
@@ -34,7 +34,7 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     public MyReactiveRepositoryAdapter(MyReactiveRepository repository, ObjectMapper mapper, LoanEntityMapper entityMapper, TransactionalOperator transactionalOperator, DatabaseClient databaseClient) {
         super(repository, mapper, d -> mapper.map(d, Loan.class));
         this.entityMapper = entityMapper;
-        this.transactionalOperator =  transactionalOperator;
+        this.transactionalOperator = transactionalOperator;
 
 
         this.databaseClient = databaseClient;
@@ -115,5 +115,54 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
                 .bind("email", email)
                 .map((row, metadata) -> row.get(0, Long.class))
                 .one();
+    }
+
+    @Override
+    public Mono<Loan> updateStatus(Long loanId, Long statusId) {
+        return repository.findById(loanId)
+                .flatMap(loanEntity -> {
+                    loanEntity.setStatusId(statusId);
+                    return repository.save(loanEntity);
+                })
+                .flatMap(savedEntity -> findById(savedEntity.getId()))
+                .switchIfEmpty(Mono.error(new RuntimeException("No se encontró la solicitud de préstamo con ID: " + loanId)));
+    }
+
+    @Override
+    public Mono<Loan> findById(Long id) {
+        String query = "SELECT " +
+                "l.id as loan_id, l.email, l.amount, l.term_months, l.created_at, " +
+                "lt.id as type_id, lt.name as type_name, lt.interest_rate, " +
+                "s.id as status_id, s.name as status_name, s.description as status_description " +
+                "FROM loans l " +
+                "INNER JOIN loan_type lt ON l.loan_type_id = lt.id " +
+                "INNER JOIN status s ON l.status_id = s.id " +
+                "WHERE l.id = :id";
+
+        return databaseClient.sql(query)
+                .bind("id", id)
+                .map((row, metadata) -> {
+                    LoanType loanType = LoanType.builder()
+                            .id(row.get("type_id", Long.class))
+                            .name(row.get("type_name", String.class))
+                            .interestRate(row.get("interest_rate", Double.class))
+                            .build();
+
+                    Status status = Status.builder()
+                            .id(row.get("status_id", Long.class))
+                            .name(row.get("status_name", String.class))
+                            .description(row.get("status_description", String.class))
+                            .build();
+
+                    return Loan.builder()
+                            .id(row.get("loan_id", Long.class))
+                            .email(row.get("email", String.class))
+                            .amount(row.get("amount", Long.class))
+                            .termMonths(row.get("term_months", Integer.class))
+                            .createdAt(row.get("created_at", LocalDateTime.class))
+                            .loanType(loanType)
+                            .status(status)
+                            .build();
+                }).one();
     }
 }

@@ -27,13 +27,12 @@ cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
 adapters:
   r2dbc:
-    host: ${DB_HOST:localhost}
-    port: ${DB_PORT:5435}
-    database: ${DB_NAME:loan_db}
-    schema: ${DB_SCHEMA:public}
-    username: ${DB_USERNAME:user}
-    password: ${DB_PASSWORD:12345}
-
+    host: "${DB_HOST:localhost}"
+    port: "${DB_PORT:5435}"
+    database: "${DB_NAME:loan_db}"
+    schema: "${DB_SCHEMA:public}"
+    username: "${DB_USERNAME:user}"
+    password: "${DB_PASSWORD:12345}"
 logging:
   level:
     root: "INFO"
@@ -41,11 +40,14 @@ logging:
 jwt:
   secret: "${JWT_SECRET}"
   expiration: 3600
-
 adapter:
   restconsumer:
     timeout: 5000
-    url: "http://localhost:8083"
+    url: "http://localhost:8080"
+  sqs:
+    region: "us-east-1"
+    queueUrl: "https://sqs.us-east-1.amazonaws.com/842832773753/loan-decision-queue"
+
 resilience4j:
   circuitbreaker:
     instances:

@@ -3,6 +3,7 @@ package co.com.pragma.api;
 import co.com.pragma.api.dto.LoanDetailDTO;
 import co.com.pragma.api.dto.LoanRequestDTO;
 import co.com.pragma.api.dto.PaginatedResponseDTO;
+import co.com.pragma.api.dto.UpdateStatusDTO;
 import co.com.pragma.api.mapper.LoanDTOMapper;
 import co.com.pragma.model.loan.Loan;
 import co.com.pragma.usecase.loan.LoanUseCase;
@@ -83,6 +84,27 @@ public class Handler {
                 .doOnError(ex -> log.error("[getRequestsForReview] Error al procesar la solicitud.", ex))
                 .onErrorResume(ex -> Mono.just("Error al procesar la solicitud: " + ex.getMessage())
                         .flatMap(errorMsg -> ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).bodyValue(Map.of("error", errorMsg)))
+                );
+    }
+
+    @PreAuthorize("hasAuthority('ASESOR')")
+    public Mono<ServerResponse> approveOrRejectLoan(ServerRequest serverRequest) {
+        Long loanId = Long.parseLong(serverRequest.pathVariable("id"));
+
+        return serverRequest.bodyToMono(UpdateStatusDTO.class)
+                .flatMap(dto -> {
+                    log.info("[approveOrRejectLoan] Petición recibida para el préstamo ID {} con decisión {}", loanId, dto.decision());
+                    return useCase.approveOrRejectLoan(loanId, dto.decision());
+                })
+                .flatMap(updatedLoan ->
+                        ServerResponse.ok().bodyValue(Map.of("message", "Estado del préstamo actualizado correctamente."))
+                )
+                .doOnError(ex -> log.error("[approveOrRejectLoan] Error al procesar la decisión para el préstamo ID {}", loanId, ex))
+                .onErrorResume(IllegalArgumentException.class, e ->
+                        ServerResponse.badRequest().bodyValue(Map.of("error", "Hubo un problema, intenta de nuevo mas tarde"))
+                )
+                .onErrorResume(RuntimeException.class, e ->
+                        ServerResponse.status(HttpStatus.NOT_FOUND).bodyValue(Map.of("error", "Hubo un problema, intenta de nuevo mas tarde"))
                 );
     }
 }

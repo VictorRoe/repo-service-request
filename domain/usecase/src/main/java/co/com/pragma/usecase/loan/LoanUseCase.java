@@ -4,6 +4,7 @@ import co.com.pragma.model.loan.Loan;
 import co.com.pragma.model.loan.LoanDetails;
 import co.com.pragma.model.loan.Status;
 import co.com.pragma.model.loan.gateways.LoanRepository;
+import co.com.pragma.model.notification.gateways.NotificationRepository;
 import co.com.pragma.model.user.UserDetail;
 import co.com.pragma.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @RequiredArgsConstructor
@@ -21,6 +23,11 @@ public class LoanUseCase implements LoanUseCaseImp {
     private static final Logger log = Logger.getLogger(LoanUseCase.class.getName());
     private final LoanRepository repository;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
+    private static final Map<String, Long> DECISION_STATUS_MAP = Map.of(
+            "APPROVED", 2L,
+            "REJECTED", 3L
+    );
 
     @Override
     public Mono<Loan> register(Loan loanRequest, String authenticatedUserEmail) {
@@ -76,6 +83,19 @@ public class LoanUseCase implements LoanUseCaseImp {
                     int totalPages = (int) Math.ceil((double) totalItems / size);
                     return new PaginatedResponse<>(loanDetails, page, totalItems, totalPages);
                 });
+    }
+
+    @Override
+    public Mono<Loan> approveOrRejectLoan(Long loanId, String decision) {
+        Long newStatusId = DECISION_STATUS_MAP.get(decision.toUpperCase());
+        if (newStatusId == null) {
+            return Mono.error(new IllegalArgumentException("La decisión debe ser 'APPROVED' o 'REJECTED'."));
+        }
+        return repository.updateStatus(loanId, newStatusId)
+                .flatMap(updatedLoan ->
+                        notificationRepository.sendLoanDecisionNotification(updatedLoan)
+                                .then(Mono.just(updatedLoan))
+                );
     }
 
     /**

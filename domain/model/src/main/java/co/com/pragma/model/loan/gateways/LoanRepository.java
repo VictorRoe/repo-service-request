@@ -11,6 +11,8 @@ public interface LoanRepository {
     Mono<Loan> saveLoanRequest(Loan loanRequest);
     Mono<Boolean> hasActiveRequest(String email);
 
+    Mono<Loan>findById(Long id);
+
     /**
      * Busca una lista paginada de préstamos que coincidan con una lista de estados.
      * @param statuses Lista de nombres de estados (ej. "PENDING", "REJECTED").
@@ -34,4 +36,12 @@ public interface LoanRepository {
      * @return Un Mono con la suma de las cuotas mensuales.
      */
     Mono<Long> calculateApprovedMonthlyDebt(String email);
+
+    /**
+     * Actualiza el estado de una solicitud de préstamo existente.
+     * @param loanId El ID del préstamo a actualizar.
+     * @param statusId El ID del nuevo estado.
+     * @return Un Mono que emite el préstamo actualizado.
+     */
+    Mono<Loan> updateStatus(Long loanId, Long statusId);
 }

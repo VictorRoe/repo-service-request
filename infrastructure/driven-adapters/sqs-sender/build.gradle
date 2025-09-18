@@ -1,0 +1,8 @@
+dependencies {
+    implementation project(':model')
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.apache.logging.log4j:log4j-api'
+    implementation 'software.amazon.awssdk:sqs'
+    implementation platform('software.amazon.awssdk:bom:2.20.43')
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+}
